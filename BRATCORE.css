@@ -1,0 +1,105 @@
+html, body {
+    height: 100%; /* Ensure the body stretches across the entire page */
+    margin: 0;    /* Remove default margin */
+    background-color: #8ADD13;
+    background-size: cover; /* Make sure the background image covers the entire body */
+  }
+  
+  .container, .dfa, .dfa-state, .dfa-line, .dfa-label {
+    font-family: 'Arial Narrow', Arial, sans-serif;
+  }
+  
+  .container {
+    text-align: center;
+    padding: 20px;
+    height: 100%; /* The container will not affect the layout, just the background */
+  }
+  
+  input {
+    padding: 8px;
+    font-size: 16px;
+    margin: 10px;
+  }
+  
+  button {
+    padding: 8px 12px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .accepted {
+    color: green;
+    font-weight: bold;
+  }
+  
+  .rejected {
+    color: red;
+    font-weight: bold;
+  }
+  
+  .dfa {
+    margin-top: 20px;
+  }
+  
+  .dfa-state {
+    transition: transform 0.3s ease, stroke 0.3s ease;
+    transform-origin: center;
+    fill: white;
+    stroke: black;
+  }
+  
+  .dfa-state.active {
+    stroke: blue;
+  }
+  
+  .dfa-state.accepting {
+    fill: green; /* Color for accepting states */
+  }
+  
+  .dfa-line {
+    stroke: black;
+    stroke-width: 1;
+    transition: stroke 0.3s ease, stroke-width 0.3s ease;
+  }
+  
+  .dfa-line.active {
+    stroke: red;
+    stroke-width: 3;
+  }
+  
+  .dfa-loop {
+    stroke: black;
+    stroke-width: 1;
+    transition: stroke 0.3s ease, stroke-width 0.3s ease;
+  }
+  
+  .dfa-loop.active {
+    stroke: red;
+    stroke-width: 3;
+  }
+  
+  .dfa-loop.pulsing {
+    animation: pulseLoop 0.5s ease-out infinite;
+  }
+  
+  .dfa-label {
+    fill: black;
+    transition: fill 0.3s ease;
+  }
+  
+  .dfa-label.active {
+    fill: red;
+  }
+  
+  @keyframes pulseLoop {
+    0% {
+      stroke-width: 1;
+    }
+    50% {
+      stroke-width: 4;
+    }
+    100% {
+      stroke-width: 1;
+    }
+  }
+  

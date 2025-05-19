@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+.intro-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #16141a; /* or whatever background you want */
+  font-family: 'Space Mono', monospace;
+  flex-direction: column;
+  text-align: center;
+  padding: 20px;
+}
+
+.intro-content {
+  /* Remove the box styling */
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  width: 100%;
+  max-width: none;
+}
+
+.text-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  padding: 0 20px; /* Allow breathing room for long lines */
+  width: 100%;
+  min-height: 80px; /* Ensure a minimum height */
+}
+
+.text-item {
+  font-size: 2.5rem;
+  color: #5dd39e;
+  position: relative;
+  text-align: center;
+  white-space: normal;  /* Allow text wrapping */
+  word-wrap: break-word;  /* Ensure long words break to the next line */
+  width: 100%; /* Take up the full width of the container */
+  max-width: 90%; /* You can control this if you want a max width to prevent extremely wide text */
+  margin: 0 auto; /* Ensures it stays centered */
+}
+
+
+.intro-content button {
+  font-family: 'Fira Code', monospace;
+  font-size: 1.1rem;
+  padding: 12px 24px;
+  background-color: #8ADD1E;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.intro-content button:hover {
+  background-color: #3e620e;
+}

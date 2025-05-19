@@ -1,0 +1,97 @@
+.container {
+  text-align: center;
+  padding: 20px;
+}
+
+input {
+  padding: 8px;
+  font-size: 16px;
+  margin: 10px;
+}
+
+button {
+  padding: 8px 12px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.accepted {
+  color: green;
+  font-weight: bold;
+}
+
+.rejected {
+  color: red;
+  font-weight: bold;
+}
+
+.dfa {
+  margin-top: 20px;
+}
+
+.dfa-state {
+  transition: transform 0.3s ease, stroke 0.3s ease, fill 0.3s ease;
+  transform-origin: center;
+}
+
+.dfa-state.active {
+  stroke: blue;
+}
+
+.dfa-line {
+  stroke: black;
+  stroke-width: 1;
+  transition: stroke 0.3s ease, stroke-width 0.3s ease;
+}
+
+.dfa-line.active {
+  stroke: url(#animated-gradient);
+  stroke-width: 3;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: drawLine 0.6s forwards;
+}
+
+@keyframes drawLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.dfa-loop {
+  stroke: black;
+  stroke-width: 1;
+  transition: stroke 0.3s ease, stroke-width 0.3s ease;
+}
+
+.dfa-loop.active {
+  stroke: red;
+  stroke-width: 3;
+  animation: pulseLoop 0.6s infinite ease-in-out;
+}
+
+@keyframes pulseLoop {
+  0%, 100% {
+    stroke-width: 2;
+    stroke-opacity: 1;
+  }
+  50% {
+    stroke-width: 4;
+    stroke-opacity: 0.6;
+  }
+}
+
+.dfa-label {
+  fill: black;
+  transition: fill 0.3s ease;
+}
+
+.dfa-label.active {
+  fill: red;
+}
+
+.transition-dot {
+  fill: orange;
+  pointer-events: none;
+  transition: cx 0.4s ease, cy 0.4s ease;
+}
