@@ -1,33 +1,78 @@
+/* Basic Reset */
 html, body {
   height: 100%; /* Ensure the body stretches across the entire page */
   margin: 0;    /* Remove default margin */
   background-color: #16141a;
   background-size: cover; /* Make sure the background image covers the entire body */
+  overflow-x: hidden; /* Prevent horizontal scrollbar */
 }
 
-
+/* Container for the entire page content */
 .container {
   text-align: center;
   padding: 20px;
-  height: 100%;
+  /* Use min-height instead of height to allow content to push it */
+  min-height: 100vh; /* Ensure container is at least viewport height */
   font-family: 'Space Mono', monospace;
   color: #5dd39e;
+  position: relative; /* Needed for absolute positioning of back button */
+  /* Add padding-top to make space for the back button if it's absolutely positioned */
+  padding-top: 60px; /* Adjust based on back button height and margin */
 }
 
+/* Style for the Back button container */
+.back-button-container {
+    position: absolute; /* Position relative to the .container */
+    top: 20px; /* Distance from the top */
+    left: 20px; /* Distance from the left */
+    z-index: 10; /* Ensure it's above other content */
+}
+
+/* Apply existing button styles to the back button */
+.back-button {
+    /* Inherits styles from the general button rule */
+    /* You might want to adjust padding/font-size specifically for the back button */
+    padding: 8px 12px; /* Example smaller padding */
+    font-size: 14px; /* Example smaller font size */
+    /* Remove border-left/right and radius overrides if they don't fit the back button */
+    border-left: 4px solid #5dd39e; /* Restore left border */
+    border-top-left-radius: 8px; /* Restore radius */
+    border-bottom-left-radius: 8px; /* Restore radius */
+    border-right: 4px solid #5dd39e; /* Restore right border */
+    border-top-right-radius: 8px; /* Restore radius */
+    border-bottom-right-radius: 8px; /* Restore radius */
+}
+
+/* Style for the input and button group container */
+.input-button-group {
+    display: flex; /* Use flexbox to align input and buttons horizontally */
+    justify-content: center; /* Center the group */
+    align-items: center; /* Align items vertically */
+    gap: 0; /* Remove gap as buttons have overlapping borders */
+    margin-bottom: 20px; /* Space below the input/button row */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+/* Input field styles (keep existing) */
 input {
   padding: 10px 14px;
   font-size: 16px;
   border: 4px solid #5dd39e;
   border-radius: 8px;
-  border-right: none;
+  border-right: none; /* Keep for joining with button */
   color: #5dd39e;
-  border-top-right-radius: 0px;
-  border-bottom-right-radius: 0px;
+  border-top-right-radius: 0px; /* Keep for joining */
+  border-bottom-right-radius: 0px; /* Keep for joining */
   background-color: #2e2e2e;
   outline: none;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  flex-grow: 1; /* Allow input to grow */
+  max-width: 300px; /* Limit max width of input */
+  /* Ensure no margin/padding is causing space */
+  margin: 0;
 }
 
+/* General button styles (keep existing) */
 button {
   border: 4px solid #5dd39e;
   padding: 10px 16px;
@@ -35,18 +80,47 @@ button {
   font-weight: 600;
   background-color: #5dd39e;
   color: #2e2e2e;
-  border-left: none;
+  /* border-left: none; /* Keep for joining with input/other buttons */
   border-radius: 8px;
-  border-top-left-radius: 0px;
-  border-bottom-left-radius: 0px;
+  /* border-top-left-radius: 0px; /* Keep for joining */
+  /* border-bottom-left-radius: 0px; /* Keep for joining */
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
+  /* Ensure buttons don't shrink below content */
+  flex-shrink: 0;
+  /* Ensure no margin/padding is causing space */
+  margin: 0;
 }
+
+/* Adjust specific button styles for joining within the input-button-group */
+.input-button-group button {
+    /* Remove left border for buttons after the first one in the group */
+    /* This targets all buttons in the group, then we'll override the first one */
+    border-left: none;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+
+.input-button-group button:last-of-type {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
 
 button:hover {
   background-color: #24b47e;
-  transform: scale(1.05);
+  transform: scale(1.05); /* Keep scale effect */
 }
+
+/* Style for disabled input and buttons */
+input:disabled, button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 
 .accepted {
   color: green;
@@ -58,8 +132,16 @@ button:hover {
   font-weight: bold;
 }
 
+/* Container for the DFA, CFG, or PDA visualization */
+
+
+
 .dfa {
-  margin-top: 20px;
+  /* The SVG itself */
+  display: block; /* Remove extra space below SVG */
+  /* Allow SVG to scale down if needed, but maintain its intrinsic size */
+  max-width: 100%;
+  height: auto;
 }
 
 .dfa-state {
@@ -113,8 +195,6 @@ button:hover {
   stroke-width: 3;
 }
 
-
-
 .dfa-loop.pulsing {
   animation: pulseLoop 0.5s ease-out infinite;
 }
@@ -138,4 +218,47 @@ button:hover {
   100% {
     stroke-width: 1;
   }
+}
+
+/* Styles for CFG content */
+.cfg-content {
+    text-align: left; /* Align text left for readability */
+    background-color: #2e2e2e;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 800px; /* Limit width for readability */
+    margin: 20px auto; /* Center the block */
+    color: #f5f5f5; /* Adjust text color for dark background */
+    overflow-x: auto; /* Add horizontal scroll if lines are too long */
+}
+
+.cfg-content h2 {
+    text-align: center; /* Center the heading */
+    color: #5dd39e; /* Match theme color */
+    margin-top: 0;
+}
+
+.cfg-content pre {
+    white-space: pre-wrap; /* Wrap long lines */
+    word-wrap: break-word; /* Break words if necessary */
+    font-family: 'Courier New', monospace; /* Monospace font for code/grammar */
+    font-size: 1rem;
+}
+
+/* Styles for PDA content */
+.pda-content {
+    text-align: center; /* Center the image and text */
+    margin-top: 20px;
+}
+
+.pda-content h2 {
+    color: #5dd39e; /* Match theme color */
+    margin-bottom: 15px;
+}
+
+.pda-image {
+    max-width: 100%; /* Ensure image doesn't overflow its container */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 8px; /* Optional: Add rounded corners to the image */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Optional: Add a subtle shadow */
 }
