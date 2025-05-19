@@ -1,9 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./landingpage.css"; // link to the CSS file
+import "./landingpage.css";
+import IntroPage from "./components/IntroPage"; // Adjust path if needed
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [showIntro, setShowIntro] = useState(true);
+
+  const handleIntroComplete = () => {
+    setShowIntro(false);
+  };
+
+  if (showIntro) {
+    return <IntroPage onAnimationComplete={handleIntroComplete} />;
+  }
 
   return (
     <div className="landing-page">
