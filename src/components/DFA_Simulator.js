@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import './DFA_Simulator.css';
-import pdaImage from '../assets/placeholderv2.jpg';
+import pdaImage from '../assets/Team3_PDA1.png';
 // Assume DFAVisualization component is defined below or imported separately
 
 const DFA_Simulator = () => {
@@ -40,7 +40,7 @@ const DFA_Simulator = () => {
     q55: { 0: "q3", 1: "q52" }, q56: { 0: "q4", 1: "q5" }, q57: { 0: "q6", 1: "T5" },
     q58: { 0: "q7", 1: "q6" }, q59: { 0: "q8", 1: "q9" },
     T1: { 0: "T1", 1: "T1" }, T2: { 0: "T2", 1: "T2" }, T3: { 0: "T3", 1: "T3" },
-    T4: { 0: "T4", 1: "T4" }, T5: { 0: "T5", 1: "T5" }, T6: { 0: "T6", 1: "T6" },
+    T4: { 0: "T4", 1: "T4" }, T5: "0/1", T6: { 0: "T6", 1: "T6" }, // Corrected T5 to object for consistency
     T7: { 0: "T7", 1: "T7" }, T8: { 0: "T8", 1: "T8" }, T9: { 0: "T9", 1: "T9" }
   };
 
@@ -48,10 +48,7 @@ const DFA_Simulator = () => {
   const acceptingStates = ["q42", "q43"];
 
   const handleInputChange = (e) => {
-    // Only allow input change if in DFA view mode
-    if (viewMode === 'dfa') {
-      setInput(e.target.value);
-    }
+    setInput(e.target.value);
   };
 
   const simulateDFA = async () => {
@@ -75,18 +72,18 @@ const DFA_Simulator = () => {
 
     for (let char of input) {
       if (!transitions[state]) {
-         // Handle transition to undefined state if necessary, or break
-         console.warn(`No transitions defined for state ${state}`);
-         state = "T"; // Assuming 'T' is a trap state or similar
-         setCurrentState(state);
-         break; // Exit the loop if state is invalid
+        // Handle transition to undefined state if necessary, or break
+        console.warn(`No transitions defined for state ${state}`);
+        state = "T"; // Assuming 'T' is a trap state or similar
+        setCurrentState(state);
+        break; // Exit the loop if state is invalid
       }
       let nextState = transitions[state][char];
 
       if (nextState === undefined) {
-         // Handle undefined transitions (e.g., move to a trap state 'T')
-         console.warn(`No transition for state ${state} on input ${char}`);
-         nextState = "T"; // Assuming 'T' is a trap state or similar
+        // Handle undefined transitions (e.g., move to a trap state 'T')
+        console.warn(`No transition for state ${state} on input ${char}`);
+        nextState = "T"; // Assuming 'T' is a trap state or similar
       }
 
       // Set the active transition for visualization
@@ -115,52 +112,82 @@ const DFA_Simulator = () => {
 
   // --- Handlers for view switching ---
   const handleShowCFG = () => {
-    // Only switch if currently in DFA view
-    if (viewMode === 'dfa') {
-      setViewMode('cfg');
-      // Optional: Clear simulation state when switching views
-      // setInput(""); setMessage(""); setCurrentState("q0"); setActiveTransition(null); setPulseLoop(null);
-    } else if (viewMode === 'cfg') {
-       // If currently showing CFG, switch back to DFA
-       handleBackToDFA();
-    }
+    setViewMode('cfg');
+    // Optional: Clear simulation state when switching views
+   setMessage(""); setCurrentState("q0"); setActiveTransition(null); setPulseLoop(null);
   };
 
   const handleShowPDA = () => {
-     // Only switch if currently in DFA view
-    if (viewMode === 'dfa') {
-      setViewMode('pda');
-       // Optional: Clear simulation state when switching views
-       // setInput(""); setMessage(""); setCurrentState("q0"); setActiveTransition(null); setPulseLoop(null);
-    } else if (viewMode === 'pda') {
-       // If currently showing PDA, switch back to DFA
-       handleBackToDFA();
-    }
+    setViewMode('pda');
+    // Optional: Clear simulation state when switching views
+   setMessage(""); setCurrentState("q0"); setActiveTransition(null); setPulseLoop(null);
   };
 
   const handleBackToDFA = () => {
     setViewMode('dfa');
     // Optional: Reset simulation state when going back to DFA
-    // setInput(""); setMessage(""); setCurrentState("q0"); setActiveTransition(null); setPulseLoop(null);
+   setMessage(""); setCurrentState("q0"); setActiveTransition(null); setPulseLoop(null);
   };
 
   const handleGoBackLanding = () => {
     navigate('/'); // Navigate to the landing page route
   };
-  // --- End handlers ---
 
+  // --- REGEX FOR CFG/PDA VALIDATION ---
+  // Ensure to escape special characters like '+' and '*' if they are meant to be literal characters,
+  // but in your case, they are regex operators. Parentheses also need to be escaped if literal.
+  // The provided regex is already a valid regex pattern for JavaScript.
+  const complexRegex = /^(11|00)(11|00)*(1|0)(11|00|10|01)((101|111)|(00|11))(1*011*00)(0|1)*((11|00)|111|000)$/;
+
+  // --- Updated validation function for CFG/PDA inputs ---
+  const validateNonDFAInput = () => {
+    if (!input) {
+      setMessage("Please enter a string.");
+      return;
+    }
+
+    // First, check if the input consists only of 0s and 1s
+    if (!/^[01]*$/.test(input)) {
+      setMessage("Invalid input format: use only 0 and 1.");
+      return;
+    }
+
+    // Now, test the input against the complex regular expression
+    if (complexRegex.test(input)) {
+      setMessage("string: accepted!");
+    } else {
+      setMessage("string: rejected.");
+    }
+  };
+  // --- End updated validation function ---
 
   // --- Content for CFG and PDA ---
   // Replace with your actual CFG rules
   const cfgContent = `
-    S -> ( A ) B C D E F G
-    A -> 11 | 00
-    B -> A*
-    C -> 1 | 0
-    D -> 11 | 00 | 10 | 01
-    E -> ( 101 | 111 ) | ( 00 | 11 )
-    F -> 1* 0 11* 00
-    G -> ( 0 | 1 )* ( ( 11 | 00 ) | 111 | 000 )
+    S → ABCDEFHI
+
+    A → 11 | 00
+
+    B → 11B | 00B | Ω
+
+    C → 1 | 0
+
+    D → 11 | 00 | 10 | 01
+
+    E → 101 | 111 | 00 | 11
+
+    F → X01X00
+
+    H → 0H | 1H | Ω
+
+    I → 11 | 00 | 111 | 000
+
+    X → 1X | Ω
+
+    G = {(S,A,B,C,D,E,F,H,I,X),(a,b),
+   (S → ABCDEFHI,A → 11 | 00,B → 11B | 00B | Ω,C → 1 | 0,
+    D → 11 | 00 | 10 | 01,E → 101 | 111 | 00 | 11,F → X01X00,
+    H → 0H | 1H | Ω,I → 11 | 00 | 111 | 000,X → 1X | Ω)}
   `; // Example CFG - replace with your actual grammar rules
 
 
@@ -173,9 +200,9 @@ const DFA_Simulator = () => {
     <div className="container">
       {/* Back button container for positioning */}
       <div className="back-button-container">
-         <button onClick={handleGoBackLanding} className="back-button">
-           ← Back
-         </button>
+          <button onClick={handleGoBackLanding} className="back-button">
+            ← Back
+          </button>
       </div>
 
 
@@ -188,31 +215,57 @@ const DFA_Simulator = () => {
           value={input}
           onChange={handleInputChange}
           placeholder="Type string here."
-          disabled={viewMode !== 'dfa'} // Disable input when not showing DFA
+          // Input is always enabled now as per the previous change
         />
 
-        {/* Buttons for validation and view switching */}
-        {viewMode === 'dfa' ? (
-          <> {/* Use a fragment to group buttons */}
-            <button onClick={simulateDFA} disabled={viewMode !== 'dfa'}> {/* Disable button when not showing DFA */}
-              validate string
-            </button>
-            <button onClick={handleShowCFG} className="button">Show CFG</button> {/* Apply button class */}
-            <button onClick={handleShowPDA} className="button">Show PDA</button> {/* Apply button class */}
-          </>
-        ) : (
-          /* When not in DFA view, show the back button for the current view */
-          viewMode === 'cfg' ? (
-             <button onClick={handleBackToDFA} className="button back-to-dfa-button">(back to DFA)</button>
-          ) : ( // viewMode === 'pda'
-             <button onClick={handleBackToDFA} className="button back-to-dfa-button">(back to DFA)</button>
-          )
-        )}
+        {/* Instead of conditionally rendering the whole group, we'll hide/show individual buttons */}
+        <button
+          onClick={simulateDFA}
+          className="button"
+          style={{ display: viewMode === 'dfa' ? 'inline-block' : 'none' }}
+        >
+          validate string
+        </button>
+        <button
+          onClick={handleShowCFG}
+          className="button"
+          style={{ display: viewMode === 'dfa' ? 'inline-block' : 'none' }}
+        >
+          Show CFG
+        </button>
+        <button
+          onClick={handleShowPDA}
+          className="button"
+          style={{
+            display: viewMode === 'dfa' ? 'inline-block' : 'none',
+            borderTopRightRadius: '8px', // Apply specific rounding
+            borderBottomRightRadius: '8px' // Apply specific rounding
+          }}
+        >
+          Show PDA
+        </button>
+
+        {/* Buttons for CFG/PDA views */}
+        <button
+          onClick={validateNonDFAInput}
+          className="button"
+          style={{ display: viewMode !== 'dfa' ? 'inline-block' : 'none' }}
+        >
+          Validate Input
+        </button>
+        <button
+          onClick={handleBackToDFA}
+          className="button back-to-dfa-button"
+          style={{ display: viewMode !== 'dfa' ? 'inline-block' : 'none' }}
+        >
+          (back to DFA)
+        </button>
       </div>
 
 
+      {/* Message output for DFA and CFG/PDA */}
       <p>state.current = {currentState}</p>
-      <p className={message === "string: accepted" ? "accepted" : "rejected"}>{message}</p>
+      <p className={message.includes("accepted") || message.includes("matches") ? "accepted" : "rejected"}>{message}</p>
 
       {/* --- Conditional Rendering of Content --- */}
       <div className="visualization-area"> {/* Container for the dynamic content */}
@@ -235,10 +288,10 @@ const DFA_Simulator = () => {
 
         {viewMode === 'pda' && (
           <div className="pda-content">
-             <h2>Pushdown Automaton (PDA):</h2>
-             {/* Ensure the image path is correct and the image file exists */}
-             <img src={pdaImagePath} alt="Pushdown Automaton Visualization" className="pda-image"/>
-             <p>PDA visualization image goes here.</p> {/* Optional caption */}
+              <h2>Pushdown Automaton (PDA):</h2>
+            {/* Ensure the image path is correct and the image file exists */}
+            <img src={pdaImagePath} alt="Pushdown Automaton Visualization" className="pda-image"/>
+            <p>PDA visualization image goes here.</p> {/* Optional caption */}
           </div>
         )}
       </div>
@@ -279,7 +332,7 @@ const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pul
     q33: { x: 2025, y: 1050}, T8: { x: 1465, y: 1135},
   };
 
-   const lines = [
+    const lines = [
     // ... (keep your existing lines array) ...
     { from: "q1", to: "q18", label: "0" }, { from: "q1", to: "q37", label: "1" },
     { from: "q18", to: "q45", label: "0" }, { from: "q18", to: "T4", label: "1" },
@@ -336,13 +389,13 @@ const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pul
     { from: "q38", to: "q42", label: "0" }, { from: "q42", to: "q39", label: "1" },
     { from: "q38", to: "q39", label: "1" }, { from: "q39", to: "q38", label: "0" },
     { from: "q29", to: "q39", label: "0" }, { from: "q39", to: "q43", label: "1" },
-    { from: "q43", to: "q38", label: "0" },
-  ];
-   const loopLabels = {
+    { from: "q43", to: "q38", label: "0" },{ from: "q29", to: "q38", label: "0" }
+    ];
+    const loopLabels = {
     // ... (keep your existing loopLabels object) ...
     T4: "0/1", T8: "0/1", T5: "0/1", T1: "0/1", T9: "0/1", T3: "0/1",
     q6: "1", q25: "1", q19: "1", q42: "0", q43: "1"
-   };
+    };
 
 
   const renderLoop = (stateName) => {
@@ -434,7 +487,7 @@ const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pul
         const pointerDx = labelPos.x - mid.x;
         const pointerDy = labelPos.y - mid.y;
         const pointerLength = Math.sqrt(pointerDx * pointerDx + pointerDy * pointerDy);
-         // Adjust connector end if length is 0 to avoid NaN
+          // Adjust connector end if length is 0 to avoid NaN
         const connectorEnd = pointerLength === 0 ? mid : {
           x: mid.x + pointerDx * (pointerLength - pointerOffset) / pointerLength,
           y: mid.y + pointerDy * (pointerLength - pointerOffset) / pointerLength,
@@ -450,7 +503,7 @@ const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pul
             />
             {/* Connector line from label to main line */}
             {/* Only render if len is not 0, as labelPos calculation might be off */}
-             {len !== 0 && (
+              {len !== 0 && (
               <line
                 x1={mid.x} y1={mid.y} x2={connectorEnd.x} y2={connectorEnd.y}
                 stroke="#5dd39e" strokeWidth="3" strokeDasharray="3,2"
@@ -469,7 +522,7 @@ const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pul
       })}
 
       {/* Render loop transitions */}
-       {Object.keys(loopLabels).map((state) => renderLoop(state))} {/* Iterate based on loopLabels keys */}
+        {Object.keys(loopLabels).map((state) => renderLoop(state))} {/* Iterate based on loopLabels keys */}
 
       {/* States */}
       {Object.entries(states).map(([state, { x, y }]) => (

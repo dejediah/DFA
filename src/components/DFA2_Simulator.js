@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
-import './DFA_Simulator.css';
-import pdaImage from '../assets/placeholderv2.jpg';
+import './DFA_Simulator.css'; // Assuming the same CSS file is used
+import pdaImage from '../assets/Team3_P2-PDA-Final.png'; // Assuming the same placeholder image
+
 // Assume DFAVisualization component is defined below or imported separately
 
 const DFA2_Simulator = () => {
@@ -12,11 +13,10 @@ const DFA2_Simulator = () => {
   const [activeTransition, setActiveTransition] = useState(null);
   const [pulseLoop, setPulseLoop] = useState(null);
 
-  // --- New state for managing the view ---
+  // --- State for managing the view (DFA, CFG, PDA) ---
   const [viewMode, setViewMode] = useState('dfa'); // 'dfa', 'cfg', 'pda'
-  // --- End new state ---
 
-
+  // --- DFA Transitions for the second automaton ---
   const transitions = {
     q1: { a: "q2", b: "q2" },
     q2: { a: "q3", b: "q3" },
@@ -27,15 +27,16 @@ const DFA2_Simulator = () => {
     q7: { a: "q7", b: "q7" }, // Self-loop for q7 on 'a' and 'b'
   };
 
+  // --- Accepting States for the second DFA ---
   const acceptingStates = ["q7"];
 
+  // --- Input Change Handler ---
   const handleInputChange = (e) => {
-    // Only allow input change if in DFA view mode
-    if (viewMode === 'dfa') {
-      setInput(e.target.value);
-    }
+    // Allow input change regardless of viewMode, validation happens on button click
+    setInput(e.target.value);
   };
 
+  // --- DFA Simulation Function (remains the same) ---
   const simulateDFA = async () => {
     // Only simulate if in DFA view mode
     if (viewMode !== 'dfa') return;
@@ -57,18 +58,18 @@ const DFA2_Simulator = () => {
 
     for (let char of input) {
       if (!transitions[state]) {
-         // Handle transition to undefined state if necessary, or break
-         console.warn(`No transitions defined for state ${state}`);
-         state = "T"; // Assuming 'T' is a trap state or similar
-         setCurrentState(state);
-         break; // Exit the loop if state is invalid
+        // Handle transition to undefined state if necessary, or break
+        console.warn(`No transitions defined for state ${state}`);
+        state = "T"; // Assuming 'T' is a trap state or similar
+        setCurrentState(state);
+        break; // Exit the loop if state is invalid
       }
       let nextState = transitions[state][char];
 
       if (nextState === undefined) {
-         // Handle undefined transitions (e.g., move to a trap state 'T')
-         console.warn(`No transition for state ${state} on input ${char}`);
-         nextState = "T"; // Assuming 'T' is a trap state or similar
+        // Handle undefined transitions (e.g., move to a trap state 'T')
+        console.warn(`No transition for state ${state} on input ${char}`);
+        nextState = "T"; // Assuming 'T' is a trap state or similar
       }
 
       // Set the active transition for visualization
@@ -97,68 +98,96 @@ const DFA2_Simulator = () => {
 
   // --- Handlers for view switching ---
   const handleShowCFG = () => {
-    // Only switch if currently in DFA view
-    if (viewMode === 'dfa') {
-      setViewMode('cfg');
-      // Optional: Clear simulation state when switching views
-      // setInput(""); setMessage(""); setCurrentState("q0"); setActiveTransition(null); setPulseLoop(null);
-    } else if (viewMode === 'cfg') {
-       // If currently showing CFG, switch back to DFA
-       handleBackToDFA();
-    }
+    setViewMode('cfg');
+    // Clear simulation state when switching views
+     setMessage(""); setCurrentState("q0"); setActiveTransition(null); setPulseLoop(null);
   };
 
   const handleShowPDA = () => {
-      // Only switch if currently in DFA view
-    if (viewMode === 'dfa') {
-      setViewMode('pda');
-       // Optional: Clear simulation state when switching views
-       // setInput(""); setMessage(""); setCurrentState("q0"); setActiveTransition(null); setPulseLoop(null);
-    } else if (viewMode === 'pda') {
-       // If currently showing PDA, switch back to DFA
-       handleBackToDFA();
-    }
+    setViewMode('pda');
+    // Clear simulation state when switching views
+     setMessage(""); setCurrentState("q0"); setActiveTransition(null); setPulseLoop(null);
   };
 
   const handleBackToDFA = () => {
     setViewMode('dfa');
-    // Optional: Reset simulation state when going back to DFA
-    // setInput(""); setMessage(""); setCurrentState("q0"); setActiveTransition(null); setPulseLoop(null);
+    // Reset simulation state when going back to DFA
+     setMessage(""); setCurrentState("q0"); setActiveTransition(null); setPulseLoop(null);
   };
 
+  // --- Handler for going back to Landing Page ---
   const handleGoBackLanding = () => {
     navigate('/'); // Navigate to the landing page route
   };
-  // --- End handlers ---
+
+  // --- REGEX FOR CFG/PDA VALIDATION (Based on the h1 content) ---
+  // Regex for: (aa + ab + ba + bb) (a + b)* (aa* + bb*) ((ba)* + (ab)* + (aa) + (bb)) (aa + bb) (a + b)*
+  // Using | for OR, * for zero or more, + for one or more, and grouping with ()
+  // Added ^ and $ anchors to match the entire string
+  const complexRegex = /^(aa|ab|ba|bb)(a|b)*(aa*|bb*)((ba)*|(ab)*|aa|bb)(aa|bb)(a|b)*$/;
 
 
-  // --- Content for CFG and PDA ---
+  // --- Validation function for CFG/PDA inputs using Regex ---
+  const validateNonDFAInput = () => {
+    if (!input) {
+      setMessage("Please enter a string.");
+      return;
+    }
+
+    // First, check if the input consists only of 'a's and 'b's
+    if (!/^[ab]*$/.test(input)) {
+      setMessage("Invalid input format: use only a and b.");
+      return;
+    }
+
+    // Now, test the input against the complex regular expression
+    if (complexRegex.test(input)) {
+      setMessage("string: accepted!");
+    } else {
+      setMessage("string: rejected.");
+    }
+  };
+
+  // --- Content for CFG and PDA Views ---
   // Replace with your actual CFG rules for the second regex
   const cfgContent = `
-    S -> (A) (B)* (C) (D) (E) (F)*
-    A -> aa | ab | ba | bb
-    B -> a | b
-    C -> aa A* | bb B*
-    D -> (ba)* | (ab)* | (aa) | (bb)
-    E -> aa | bb
-    F -> a | b
+    S → ABCDEF
+
+    A → aa | ab | ba | bb
+
+    B → aB | bB | Ω
+
+    C → aX | bX | Ω
+
+    D → Y | Z | aa | bb
+
+    E → aa | bb
+
+    F → aF | bF | Ω
+
+    X → a | b | Ω
+
+    Y → baY | Ω
+
+    Z → abZ | Ω
+
+    G = {(S,A,B,C,D,E,F,X,Y,Z),(a,b),
+   (S → ABCDEF,A → aa | ab | ba | bb,B → aB | bB | Ω,C → aX | bX | Ω,
+    D → Y | Z | aa | bb,E → aa | bb,F → aF | bF | Ω,X → a | b | Ω,
+    Y → baY | Ω,Z → abZ | Ω)}
   `; // Example CFG - replace with your actual grammar rules
 
   // Replace with the actual path to your PDA image for the second regex
-  // Assuming you have a different image for this PDA, update the path.
-  // If you want to use the same placeholder, keep it.
-  const pdaImagePath = pdaImage; // <<< UPDATE THIS PATH if you have a different PDA image
-
-  // --- End content ---
+  const pdaImagePath = pdaImage; // Using the same placeholder for now
 
 
   return (
     <div className="container">
       {/* Back button container for positioning */}
       <div className="back-button-container">
-          <button onClick={handleGoBackLanding} className="back-button">
-            ← Back
-          </button>
+           <button onClick={handleGoBackLanding} className="back-button">
+             ← Back
+           </button>
       </div>
 
 
@@ -167,46 +196,73 @@ const DFA2_Simulator = () => {
       {/* Input and button group */}
       <div className="input-button-group">
         <input
-          type="text"
-          value={input}
-          onChange={handleInputChange}
-          placeholder="Type string here."
-          disabled={viewMode !== 'dfa'} // Disable input when not showing DFA
+           type="text"
+           value={input}
+           onChange={handleInputChange}
+           placeholder="Type string here."
+           // Input is always enabled now for consistency
         />
 
-        {/* Buttons for validation and view switching */}
-        {viewMode === 'dfa' ? (
-          <> {/* Use a fragment to group buttons */}
-            <button onClick={simulateDFA} disabled={viewMode !== 'dfa'}> {/* Disable button when not showing DFA */}
-              validate string
-            </button>
-            <button onClick={handleShowCFG} className="button">Show CFG</button> {/* Apply button class */}
-            <button onClick={handleShowPDA} className="button">Show PDA</button> {/* Apply button class */}
-          </>
-        ) : (
-          /* When not in DFA view, show the back button for the current view */
-          viewMode === 'cfg' ? (
-              <button onClick={handleBackToDFA} className="button back-to-dfa-button">(back to DFA)</button>
-          ) : ( // viewMode === 'pda'
-              <button onClick={handleBackToDFA} className="button back-to-dfa-button">(back to DFA)</button>
-          )
-        )}
+        {/* Buttons for validation and view switching, hidden/shown with style */}
+        <button
+           onClick={simulateDFA}
+           className="button"
+           style={{ display: viewMode === 'dfa' ? 'inline-block' : 'none' }}
+        >
+           validate string
+        </button>
+        <button
+           onClick={handleShowCFG}
+           className="button"
+           style={{ display: viewMode === 'dfa' ? 'inline-block' : 'none' }}
+        >
+           Show CFG
+        </button>
+        <button
+           onClick={handleShowPDA}
+           className="button"
+           style={{
+             display: viewMode === 'dfa' ? 'inline-block' : 'none',
+             borderTopRightRadius: '8px', // Apply specific rounding
+             borderBottomRightRadius: '8px' // Apply specific rounding
+           }}
+        >
+           Show PDA
+        </button>
+
+        {/* Buttons for CFG/PDA views, hidden in DFA mode */}
+        <button
+           onClick={validateNonDFAInput}
+           className="button"
+           style={{ display: viewMode !== 'dfa' ? 'inline-block' : 'none' }}
+        >
+           Validate Input
+        </button>
+        <button
+           onClick={handleBackToDFA}
+           className="button back-to-dfa-button"
+           style={{ display: viewMode !== 'dfa' ? 'inline-block' : 'none' }}
+        >
+           (back to DFA)
+        </button>
       </div>
 
 
+      {/* Message output for DFA and CFG/PDA */}
+      {/* Updated class logic to match "accepted" or "matches" */}
       <p>state.current = {currentState}</p>
-      <p className={message === "string: accepted" ? "accepted" : "rejected"}>{message}</p>
+      <p className={message.includes("accepted") || message.includes("matches") ? "accepted" : "rejected"}>{message}</p>
 
       {/* --- Conditional Rendering of Content --- */}
       <div className="visualization-area"> {/* Container for the dynamic content */}
         {viewMode === 'dfa' && (
            <DFAVisualization
-            currentState={currentState}
-            activeTransition={activeTransition}
-            acceptingStates={acceptingStates}
-            pulseLoop={pulseLoop} // Pass pulseLoop here
-            // Pass other necessary props to DFAVisualization
-          />
+             currentState={currentState}
+             activeTransition={activeTransition}
+             acceptingStates={acceptingStates}
+             pulseLoop={pulseLoop} // Pass pulseLoop here
+             // Pass other necessary props to DFAVisualization
+           />
         )}
 
         {viewMode === 'cfg' && (
@@ -218,10 +274,10 @@ const DFA2_Simulator = () => {
 
         {viewMode === 'pda' && (
           <div className="pda-content">
-              <h2>Pushdown Automaton (PDA):</h2>
-              {/* Ensure the image path is correct and the image file exists */}
-              <img src={pdaImagePath} alt="Pushdown Automaton Visualization" className="pda-image"/>
-              <p>PDA visualization image goes here.</p> {/* Optional caption */}
+               <h2>Pushdown Automaton (PDA):</h2>
+             {/* Ensure the image path is correct and the image file exists */}
+             <img src={pdaImagePath} alt="Pushdown Automaton Visualization" className="pda-image"/>
+             <p>PDA visualization image goes here.</p> {/* Optional caption */}
           </div>
         )}
       </div>
@@ -277,18 +333,18 @@ const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pul
     return (
       <React.Fragment key={shouldPulse ? pulseLoop.key : stateName}>
         <path
-          d={`M ${x} ${y - 30} C ${x - 40} ${y - 80}, ${x + 40} ${y - 80}, ${x} ${y - 30}`}
-          fill="none"
-          className={`dfa-loop ${isActive ? "active" : ""} ${shouldPulse ? "pulsing" : ""}`}
+           d={`M ${x} ${y - 30} C ${x - 40} ${y - 80}, ${x + 40} ${y - 80}, ${x} ${y - 30}`}
+           fill="none"
+           className={`dfa-loop ${isActive ? "active" : ""} ${shouldPulse ? "pulsing" : ""}`}
         />
         <text
-          x={x}
-          y={y - 73}
-          fontSize="14"
-          textAnchor="middle"
-          className={`dfa-label ${isActive ? "active" : ""}`}
+           x={x}
+           y={y - 73}
+           fontSize="14"
+           textAnchor="middle"
+           className={`dfa-label ${isActive ? "active" : ""}`}
         >
-          {loopLabel}
+           {loopLabel}
         </text>
       </React.Fragment>
     );
@@ -363,7 +419,7 @@ const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pul
   const pointerDx = labelPos.x - mid.x;
   const pointerDy = labelPos.y - mid.y;
   const pointerLength = Math.sqrt(pointerDx * pointerDx + pointerDy * pointerDy);
-   // Adjust connector end if length is 0 to avoid NaN
+    // Adjust connector end if length is 0 to avoid NaN
   const connectorEnd = pointerLength === 0 ? mid : {
     x: mid.x + pointerDx * (pointerLength - pointerOffset) / pointerLength,
     y: mid.y + pointerDy * (pointerLength - pointerOffset) / pointerLength,
