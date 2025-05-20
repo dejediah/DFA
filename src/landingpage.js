@@ -1,12 +1,16 @@
 // LandingPage.js
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+// Assuming these CSS files and components exist as per the original code
 import "./landingpage.css";
 import IntroPage from "./components/IntroPage";
 import BinaryAnimation from './binaryanim';
 
 // Import the audio file here
-import bratSoundFile from './assets/brat.mp3'; // Adjust path if your 'assets' folder is located differently
+import bratSoundFile from './assets/brat.mp3';
+
+// Import your logo here
+import yourLogo from './assets/pathfinder.png'; // Make sure this path is correct for your logo
 
 // Declare a variable outside the component to track if the intro has been shown
 let introHasBeenShownInSession = false;
@@ -16,76 +20,72 @@ export default function LandingPage() {
   const [showIntro, setShowIntro] = useState(!introHasBeenShownInSession);
   const [isBratModeActive, setIsBratModeActive] = useState(false);
 
-  // Use the imported 'bratSoundFile' variable for the Audio object
   const bratSound = useRef(new Audio(bratSoundFile));
 
-  // Use useEffect to add and clean up the timeupdate event listener
   useEffect(() => {
     const audio = bratSound.current;
 
     const handleTimeUpdate = () => {
-      // If the current time exceeds 7.5 seconds, pause the audio
+      // Pause and reset audio if current time exceeds 7.5 seconds
       if (audio.currentTime >= 7.5) {
         audio.pause();
-        audio.currentTime = 0; // Optionally reset to start for next play
+        audio.currentTime = 0;
       }
     };
 
+    // Add event listener for time updates
     audio.addEventListener('timeupdate', handleTimeUpdate);
 
-    // Clean up the event listener and pause/reset audio when the component unmounts
+    // Cleanup function: remove event listener and pause/reset audio on unmount
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.pause(); // Ensure sound stops if component unmounts
+      audio.pause();
       audio.currentTime = 0;
     };
-  }, []);
+  }, []); // Empty dependency array ensures this effect runs only once on mount
 
-  // Handle intro animation completion
+  // Callback function for when the intro animation completes
   const handleIntroComplete = () => {
-    setShowIntro(false);
-    introHasBeenShownInSession = true;
+    setShowIntro(false); // Hide the intro page
+    introHasBeenShownInSession = true; // Mark intro as shown for the session
   };
 
-  // Handle clicking the Brat mode button
+  // Handler for the "Brat Mode" toggle button
   const handleBratButtonClick = () => {
-    // Determine the *new* state for brat mode
-    const newBratModeState = !isBratModeActive;
+    const newBratModeState = !isBratModeActive; // Toggle the state
+    setIsBratModeActive(newBratModeState); // Update the state
 
-    // Toggle the brat mode state
-    setIsBratModeActive(newBratModeState);
-
-    // Play the sound ONLY if switching TO brat mode (i.e., newBratModeState is true)
+    // Play or pause the sound based on the new state
     if (newBratModeState) {
       const audio = bratSound.current;
-      audio.currentTime = 0; // Rewind to the start
+      audio.currentTime = 0; // Reset audio to start
       audio.play().catch(error => {
-        console.error("Error playing sound:", error);
+        console.error("Error playing sound:", error); // Log any errors during playback
       });
     } else {
-      // If switching OFF brat mode, pause the sound immediately
       const audio = bratSound.current;
-      audio.pause();
-      audio.currentTime = 0; // Reset for next time
+      audio.pause(); // Pause the audio
+      audio.currentTime = 0; // Reset audio to start
     }
   };
 
-  // Show intro animation first based on the state
+  // Conditional rendering: show IntroPage if showIntro is true
   if (showIntro) {
     return <IntroPage onAnimationComplete={handleIntroComplete} />;
   }
 
+  // Determine text content and titles based on brat mode
   const regexBoxTitle = isBratModeActive ? "choose a brat expression:" : "Choose a regular expression:";
   const regexBoxText = isBratModeActive ?
     `
 guess ft. billie
-<br></br>
+
 Von dutch
     `
     :
     `
 1. (11+00)(11+00)*(1+0)(11+00+10+01)((101+111)+(00+11))(1*011*00)(0+1)*((11+00)+(111)+000)
-<br></br>
+
 2. (aa+ab+ba+bb)(a+b)*(aa*+bb*)((ba)*+(ab)*+(aa)+(bb))(aa+bb)(a+b)*
     `;
 
@@ -94,24 +94,32 @@ Von dutch
   const bratButtonText = isBratModeActive ? "party's over" : "brat mode";
 
   return (
+    // Apply 'brat-active' class to the main container when brat mode is on
     <div className={`landing-page ${isBratModeActive ? 'brat-active' : ''}`}>
+      {/* Logo positioned directly here */}
+      {/* Conditionally hide the logo using a class when brat mode is active */}
+      <img
+        src={yourLogo}
+        alt="Logo"
+        className={`logo ${isBratModeActive ? 'hidden-logo' : ''}`} // Added 'hidden-logo' class
+      />
+
       <div className="landing-content">
-        {/* Title - conditionally change text based on isBratModeActive */}
+        {/* Title - now only text */}
         <h1 className="landing-title">
           {isBratModeActive ? './brat_page' : './home_page'}
         </h1>
 
-        {/* Render the BinaryAnimation component */}
         <BinaryAnimation isBratModeActive={isBratModeActive} />
 
-        {/* Regex options - use conditional text */}
         <div className="regex-box">
           <h2>{regexBoxTitle}</h2>
+          {/* Using dangerouslySetInnerHTML for pre-formatted text */}
           <pre className="regex-text" dangerouslySetInnerHTML={{ __html: regexBoxText }} />
         </div>
 
-        {/* Navigation buttons - use conditional text */}
         <div className="button-group">
+          {/* Navigation buttons */}
           <button onClick={() => navigate("/page1")} className="nav-button">
             {navButton1Text}
           </button>
@@ -119,9 +127,8 @@ Von dutch
             {navButton2Text}
           </button>
         </div>
-
-        {/* Brat mode button - use conditional text */}
       </div>
+      {/* Brat mode toggle button */}
       <button
         onClick={handleBratButtonClick}
         className="brat-text-button"

@@ -7,12 +7,12 @@ const IntroPage = ({ onAnimationComplete }) => {
   const [showButton, setShowButton] = useState(false);
 
   const texts = [
-    "welcome to the DFA simulator!",
-    "choose between DFA",
-    "CFG",
-    "or another whatever",
-    "ts is gonna be so cool",
-    "u ready bruh?",
+    "hey there, welcome to the pathfinder!",
+    "you can explore things like DFAs,",
+    "CFGs",
+    "PDAs",
+    "and easily find a path through",
+    "so, you ready to dive in?",
   ];
 
   useEffect(() => {
@@ -56,7 +56,7 @@ const IntroPage = ({ onAnimationComplete }) => {
             transition={{ duration: 0.5 }}
             onClick={onAnimationComplete}
           >
-            enter the simulator
+            enter the simulation
           </motion.button>
         )}
       </div>

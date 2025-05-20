@@ -1,76 +1,90 @@
+/* landingpage.css */
+.hidden-logo {
+  display: none;
+}
 /* Basic Reset */
 html, body {
-    /* Prevent horizontal scrollbar issues, especially with width: 100vw elements */
     overflow-x: hidden;
-    margin: 0; /* Ensure no default body margin */
-    padding: 0; /* Ensure no default body padding */
-    /* Removed transition for background */
+    margin: 0;
+    padding: 0;
 }
 
 /* Default body styles */
 body {
     color: #16141a;
     min-height: 100vh;
-    font-family: 'Inter', sans-serif; /* Apply a default font */
+    font-family: 'Inter', sans-serif;
 }
-
-/* Body styles when Brat mode is active */
 
 /* Centered Page Layout */
 .landing-page {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column; /* Keep column for stacking content */
+    align-items: center; /* Center horizontally */
+    justify-content: center; /* Center vertically */
     min-height: 100vh;
     padding: 2rem;
     overflow-x: hidden;
-    position: relative;
-    padding-bottom: 50px; /* Adjust as needed */
-    /* Removed transition for background */
+    position: relative; /* THIS IS CRUCIAL for positioning the logo relative to the page */
+    padding-bottom: 50px;
 }
 
 /* Styles for .landing-page when Brat mode is active */
 .landing-page.brat-active {
-  background-color: #8ADD1E;
+    background-color: #8ADD1E;
 }
 
-
-/* Content Box */
+/* Content Box - Revert to centering its content */
 .landing-content {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* Re-center content within landing-content */
     gap: 1.5rem;
-    text-align: center;
+    text-align: center; /* Re-center text within landing-content */
     max-width: 800px;
     width: 100%;
     position: static;
     padding: 0;
-    /* Add transition for smoother changes */
-    transition: color 0.5s ease;
 }
 
 /* Styles for .landing-content when Brat mode is active */
-.landing-content.brat-active {
-     color: #fff; /* Ensure content text is white if body color change isn't enough */
+.landing-page.brat-active .landing-content {
+    color: #fff;
 }
 
-
-/* Title */
+/* Title - Revert to simple centered text */
 .landing-title {
     font-size: 2.5rem;
-    /* Keep default text shadow */
     text-shadow: 1px 1px 5px rgba(255, 255, 255, 0.2);
-    /* Keep default font */
     font-family: 'Courier New', monospace;
-    /* Keep default color */
     color: #5dd39e;
+    /* Remove any flex, gap, align-self properties that were for the logo */
+    /* It's just a centered h1 now */
+    margin-top: 0; /* Adjust as needed to pull it closer to the top if desired */
+    margin-bottom: 0; /* Adjust as needed */
+    margin-left: -3.7rem;
 }
 
 /* Styles for .landing-title when Brat mode is active */
 .landing-page.brat-active .landing-title {
-    color: #000000; /* Example: Bright yellow */
+    color: #000000;
     font-family: 'Arial Narrow', Arial, sans-serif;
+}
+
+/* Logo styles - Absolutely positioned in the top-left */
+.logo {
+    position: absolute; /* Take it out of flow */
+    top: -10rem; /* Matches the top padding of .landing-page */
+    left: -5rem; /* Matches the left padding of .landing-page */
+    height: 400px; /* <--- Set a default height for larger screens here */
+    width: auto; /* Maintain aspect ratio */
+    z-index: 100; /* Ensure it's above other elements if they overlap */
+}
+
+/* NEW: Class to hide the logo */
+.logo.hidden {
+    opacity: 0;
+    pointer-events: none; /* Prevent interaction when hidden */
 }
 
 
@@ -81,26 +95,21 @@ body {
     justify-content: center;
     align-items: center;
     box-sizing: border-box;
-
     position: relative;
     height: 700px;
     overflow: hidden;
     background: radial-gradient(circle at center, #231f29, #16141a);
-
     box-shadow: inset 0 0 1000px rgba(0, 0, 0, 0.5);
     width: 100vw;
-
     border: none;
-    /* Removed transition for background, kept box-shadow transition */
-    transition: box-shadow 0.5s ease;
+    align-self: center; /* Ensure it stays centered if landing-page is column flex */
 }
 
 /* Styles for .media-box when Brat mode is active */
 .landing-page.brat-active .media-box {
-    background: #8ADD1E; 
-    box-shadow: None;
+    background: #8ADD1E;
+    box-shadow: none;
 }
-
 
 /* Regex Box */
 .regex-box {
@@ -114,44 +123,41 @@ body {
 
 /* Styles for .regex-box when Brat mode is active */
 .landing-page.brat-active .regex-box {
-    background-color: #8ADD1E; /* Example: Magenta */
-    box-shadow: 0 0 20px rgba(0, 0, 0, 1); /* Example: Magenta outer shadow */
+    background-color: #8ADD1E;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 1);
 }
 
-
 .regex-box h2 {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     margin-bottom: 0.75rem;
     color: #5dd39e;
-    /* Add transition for smoother changes */
+    font-family: 'Courier New', monospace;
 }
 
 /* Styles for .regex-box h2 when Brat mode is active */
 .landing-page.brat-active .regex-box h2 {
-     color: #000000; /* Example: Yellow */
-     font-family: 'Arial Narrow', Arial, sans-serif;
+    color: #000000;
+    font-family: 'Arial Narrow', Arial, sans-serif;
 }
 
-
 .regex-text {
-    font-family: 'Fira Code', monospace;
-    font-size: 0.9rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 1.1rem;
     background-color: #000000;
     padding: 0.75rem;
     border-radius: 8px;
     overflow-x: auto;
     white-space: pre-wrap;
-    color: #8be9fd;
+    color: #5dd39e;
 }
 
 /* Styles for .regex-text when Brat mode is active */
 .landing-page.brat-active .regex-text {
-    background-color: #000000; /* Example: Purple */
-    color: #8ADD1E; /* Example: Cyan */
+    background-color: #000000;
+    color: #8ADD1E;
     font-family: 'Arial Narrow', Arial, sans-serif;
     font-size: larger;
 }
-
 
 /* Buttons */
 .button-group {
@@ -169,7 +175,6 @@ body {
     border-radius: 8px;
     font-size: 1rem;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
 .nav-button:hover {
@@ -179,23 +184,21 @@ body {
 
 /* Styles for .nav-button when Brat mode is active */
 .landing-page.brat-active .nav-button {
-    background-color: #00ff00; /* Example: Green */
-    color: #000; /* Example: Black text */
+    background-color: #00ff00;
+    color: #000;
 }
 
 .landing-page.brat-active .nav-button:hover {
-     background-color: #00cc00; /* Example: Darker green on hover */
+    background-color: #00cc00;
 }
-
 
 /* --- NEW Brat Text Button Styles --- */
 .brat-text-button {
     position: absolute;
     bottom: 10px;
     right: 10px;
-
     font-size: 0.8em;
-    color: #8ADD1E; /* Default color for the button itself */
+    color: #8ADD1E;
     background: none;
     border: none;
     padding: 5px;
@@ -207,14 +210,13 @@ body {
 
 .brat-text-button:hover {
     background-color: #8ADD1E;
-    color:#000
+    color:#000;
 }
 
 /* Styles for .brat-text-button when Brat mode is active */
 .landing-page.brat-active .brat-text-button {
-    color: #000000; /* Example: Change button color when active */
+    color: #000000;
 }
-
 
 /* --- Placeholder Layer (for animation) --- */
 .media-placeholder {
@@ -234,7 +236,6 @@ body {
     bottom: 0;
     pointer-events: none;
     background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05), transparent 60%);
-    transition: background 0.1s ease;
 }
 
 /* Styles for .fisheye-layer when Brat mode is active */
@@ -242,25 +243,22 @@ body {
     background: #8ADD1E;
 }
 
-
 /* --- Floating Binary Numbers --- */
 .binary {
     position: absolute;
     bottom: 0;
-    color: #5dd39e; /* Default color */
+    color: #5dd39e;
     font-family: monospace;
     pointer-events: none;
     user-select: none;
     will-change: transform, opacity;
-    transition: opacity 0.3s ease, color 0.5s ease; /* Add color transition */
 }
 
 /* Styles for .binary when Brat mode is active */
 .landing-page.brat-active .binary {
     color: #000000;
-    font-family: 'Arial Narrow', Arial, sans-serif;; /* Example: Magenta binary numbers */
+    font-family: 'Arial Narrow', Arial, sans-serif;
 }
-
 
 /* Keyframes */
 @keyframes floatUp {
@@ -269,12 +267,11 @@ body {
         opacity: 1;
     }
     100% {
-        transform: translateY(-300px); /* Adjust if binary animation height changes */
+        transform: translateY(-300px);
         opacity: 0;
     }
 }
 
-/* Note: Using !important can make debugging difficult. Consider adjusting specificity instead. */
 .media-placeholder:hover .binary {
     animation-duration: 1.5s !important;
 }
@@ -282,37 +279,42 @@ body {
 /* Add responsive adjustments if needed */
 @media (max-width: 768px) {
     .landing-page {
-        padding: 1rem; /* Reduce padding on smaller screens */
+        padding: 1rem;
     }
 
     .landing-title {
-        font-size: 2rem; /* Reduce title size */
+        font-size: 2rem;
     }
     .landing-page.brat-active .landing-title {
-         font-size: 1.8rem; /* Adjust brat title size on small screens */
+        font-size: 1.8rem;
     }
 
+    .logo {
+        top: 1rem; /* Adjust for smaller screens based on padding */
+        left: 1rem; /* Adjust for smaller screens based on padding */
+        height: 50px; /* Adjust for smaller screens */
+    }
 
     .regex-box {
-        padding: 1rem; /* Adjust padding */
+        padding: 1rem;
     }
 
     .regex-text {
-        font-size: 0.8rem; /* Adjust font size */
+        font-size: 0.8rem;
     }
 
     .button-group {
-        flex-direction: column; /* Stack buttons vertically */
-        gap: 0.5rem; /* Reduce gap */
+        flex-direction: column;
+        gap: 0.5rem;
     }
 
     .nav-button {
-        width: 100%; /* Make buttons take full width */
+        width: 100%;
     }
 
     .brat-text-button {
-        font-size: 0.7em; /* Further reduce brat button size */
-        bottom: 5px; /* Adjust position */
-        right: 5px; /* Adjust position */
+        font-size: 0.7em;
+        bottom: 5px;
+        right: 5px;
     }
 }

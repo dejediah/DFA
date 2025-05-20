@@ -172,9 +172,10 @@ const DFA2_Simulator = () => {
     Z → abZ | Ω
 
     G = {(S,A,B,C,D,E,F,X,Y,Z),(a,b),
-   (S → ABCDEF,A → aa | ab | ba | bb,B → aB | bB | Ω,C → aX | bX | Ω,
-    D → Y | Z | aa | bb,E → aa | bb,F → aF | bF | Ω,X → a | b | Ω,
-    Y → baY | Ω,Z → abZ | Ω)}
+   (S → ABCDEF,A → aa | ab | ba | bb,B → aB | bB | Ω,C → aX | 
+    bX | Ω,
+    D → Y | Z | aa | bb,E → aa | bb,F → aF | bF | Ω,X → a | b | 
+    Ω, Y → baY | Ω,Z → abZ | Ω)}
   `; // Example CFG - replace with your actual grammar rules
 
   // Replace with the actual path to your PDA image for the second regex
@@ -277,7 +278,6 @@ const DFA2_Simulator = () => {
                <h2>Pushdown Automaton (PDA):</h2>
              {/* Ensure the image path is correct and the image file exists */}
              <img src={pdaImagePath} alt="Pushdown Automaton Visualization" className="pda-image"/>
-             <p>PDA visualization image goes here.</p> {/* Optional caption */}
           </div>
         )}
       </div>

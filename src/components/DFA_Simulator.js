@@ -291,7 +291,6 @@ const DFA_Simulator = () => {
               <h2>Pushdown Automaton (PDA):</h2>
             {/* Ensure the image path is correct and the image file exists */}
             <img src={pdaImagePath} alt="Pushdown Automaton Visualization" className="pda-image"/>
-            <p>PDA visualization image goes here.</p> {/* Optional caption */}
           </div>
         )}
       </div>

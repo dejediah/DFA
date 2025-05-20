@@ -241,8 +241,8 @@ input:disabled, button:disabled {
 .cfg-content pre {
     white-space: pre-wrap; /* Wrap long lines */
     word-wrap: break-word; /* Break words if necessary */
-    font-family: 'Courier New', monospace; /* Monospace font for code/grammar */
-    font-size: 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 1.3rem;
 }
 
 /* Styles for PDA content */
