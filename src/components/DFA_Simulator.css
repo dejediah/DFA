@@ -34,7 +34,7 @@ html, body {
     /* You might want to adjust padding/font-size specifically for the back button */
     padding: 8px 12px; /* Example smaller padding */
     font-size: 14px; /* Example smaller font size */
-    /* Remove border-left/right and radius overrides if they don't fit the back button */
+    /* Restore border-left/right and radius overrides if they don't fit the back button */
     border-left: 4px solid #5dd39e; /* Restore left border */
     border-top-left-radius: 8px; /* Restore radius */
     border-bottom-left-radius: 8px; /* Restore radius */
@@ -43,17 +43,24 @@ html, body {
     border-bottom-right-radius: 8px; /* Restore radius */
 }
 
-/* Style for the input and button group container */
-.input-button-group {
-    display: flex; /* Use flexbox to align input and buttons horizontally */
-    justify-content: center; /* Center the group */
-    align-items: center; /* Align items vertically */
-    gap: 0; /* Remove gap as buttons have overlapping borders */
-    margin-bottom: 20px; /* Space below the input/button row */
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+/* --- New Styles for Input Rows and Messages --- */
+.input-row {
+  display: flex;
+  flex-direction: column; /* Stack input-button-group and message vertically */
+  align-items: center;   /* Center the input-button-group and message horizontally */
+  width: 100%;           /* Take full width to help with centering */
 }
 
-/* Input field styles (keep existing) */
+.input-button-group {
+  display: flex; /* Aligns the input field and the button horizontally */
+  justify-content: center; /* Centers the input and button within the row */
+  align-items: center;   /* Vertically centers items */
+  gap: 0;                /* Keep gap at 0 for overlapping borders */
+  margin-bottom: 5px;    /* Small space between the button and the message below it */
+  flex-wrap: wrap;       /* Allow wrapping on smaller screens */
+}
+
+/* Input field styles */
 input {
   padding: 10px 14px;
   font-size: 16px;
@@ -68,11 +75,10 @@ input {
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   flex-grow: 1; /* Allow input to grow */
   max-width: 300px; /* Limit max width of input */
-  /* Ensure no margin/padding is causing space */
-  margin: 0;
+  margin: 0; /* Ensure no margin/padding is causing space */
 }
 
-/* General button styles (keep existing) */
+/* General button styles */
 button {
   border: 4px solid #5dd39e;
   padding: 10px 16px;
@@ -80,33 +86,38 @@ button {
   font-weight: 600;
   background-color: #5dd39e;
   color: #2e2e2e;
-  /* border-left: none; /* Keep for joining with input/other buttons */
   border-radius: 8px;
-  /* border-top-left-radius: 0px; /* Keep for joining */
-  /* border-bottom-left-radius: 0px; /* Keep for joining */
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
-  /* Ensure buttons don't shrink below content */
-  flex-shrink: 0;
-  /* Ensure no margin/padding is causing space */
-  margin: 0;
+  flex-shrink: 0; /* Ensure buttons don't shrink below content */
+  margin: 0; /* Ensure no margin/padding is causing space */
 }
 
 /* Adjust specific button styles for joining within the input-button-group */
 .input-button-group button {
-    /* Remove left border for buttons after the first one in the group */
-    /* This targets all buttons in the group, then we'll override the first one */
-    border-left: none;
+    border-left: none; /* Remove left border for seamless join with input */
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
-    border-top-right-radius: 0px;
-    border-bottom-right-radius: 0px;
+    border-top-right-radius: 8px; /* Apply radius only to the right side of the button */
+    border-bottom-right-radius: 8px; /* Apply radius only to the right side of the button */
 }
 
+/* This rule makes sure the initial "Validate String" button has rounded left corners if it's the first in a standalone group */
+/* However, since it's now paired with an input, the previous rule handles its right side */
+/* The back-button rule is separate and handles its own rounding */
+.input-button-group button:first-of-type {
+  border-top-left-radius: 0px; /* Remove left radius for buttons directly next to input */
+  border-bottom-left-radius: 0px;
+}
 
-.input-button-group button:last-of-type {
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
+/* Handle the standalone "Back to DFA" button specifically */
+.back-to-dfa-button {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  border-left: 4px solid #5dd39e; /* Ensure it has its left border */
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  margin-top: 15px; /* Add some space above it */
 }
 
 
@@ -121,6 +132,13 @@ input:disabled, button:disabled {
     cursor: not-allowed;
 }
 
+/* Message styling */
+.input-row p { /* Target the message paragraph specifically within an input-row */
+  margin-top: 5px; /* Space between the button and the message */
+  min-height: 20px; /* Give it some minimum height to prevent layout shifts */
+  text-align: center; /* Center the message */
+  width: 100%; /* Ensure message takes full width for centering */
+}
 
 .accepted {
   color: green;
@@ -133,7 +151,13 @@ input:disabled, button:disabled {
 }
 
 /* Container for the DFA, CFG, or PDA visualization */
-
+.visualization-area {
+  margin-top: 30px; /* Add some space above the visualization */
+  display: flex;
+  justify-content: center; /* Center the visualization horizontally */
+  align-items: center; /* Center vertically if space allows */
+  width: 100%;
+}
 
 
 .dfa {

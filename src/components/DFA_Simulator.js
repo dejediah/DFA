@@ -1,24 +1,22 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import './DFA_Simulator.css';
 import pdaImage from '../assets/Team3_PDA1.png';
-// Assume DFAVisualization component is defined below or imported separately
 
 const DFA_Simulator = () => {
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
   const [input, setInput] = useState("");
-  const [currentState, setCurrentState] = useState("q0"); // Initial state might need adjustment if 'q1' is the true start based on your simulation logic
-  const [message, setMessage] = useState("");
+  // New state to manage inputs for multiple simulations
+  const [inputs, setInputs] = useState(["", "", "", "", ""]); // 5 inputs, index 0 for the original
+  const [currentState, setCurrentState] = useState("q0");
+  const [messages, setMessages] = useState(["", "", "", "", ""]); // Messages for each simulation
   const [activeTransition, setActiveTransition] = useState(null);
   const [pulseLoop, setPulseLoop] = useState(null);
-
-  // --- New state for managing the view ---
-  const [viewMode, setViewMode] = useState('dfa'); // 'dfa', 'cfg', 'pda'
-  // --- End new state ---
-
+  const [viewMode, setViewMode] = useState('dfa');
+  // New state to track if any simulation is running
+  const [simulationRunning, setSimulationRunning] = useState(false);
 
   const transitions = {
-    // ... (keep your existing transitions object) ...
     q1: { 0: "q18", 1: "q37" }, q2: { 0: "q57", 1: "q10" }, q3: { 0: "q11", 1: "q10" },
     q4: { 0: "q53", 1: "q9" }, q5: { 0: "q12", 1: "q13" }, q6: { 0: "q14", 1: "q6" },
     q7: { 0: "T1", 1: "q6" }, q8: { 0: "q59", 1: "q15" }, q9: { 0: "q16", 1: "q3" },
@@ -40,129 +38,140 @@ const DFA_Simulator = () => {
     q55: { 0: "q3", 1: "q52" }, q56: { 0: "q4", 1: "q5" }, q57: { 0: "q6", 1: "T5" },
     q58: { 0: "q7", 1: "q6" }, q59: { 0: "q8", 1: "q9" },
     T1: { 0: "T1", 1: "T1" }, T2: { 0: "T2", 1: "T2" }, T3: { 0: "T3", 1: "T3" },
-    T4: { 0: "T4", 1: "T4" }, T5: "0/1", T6: { 0: "T6", 1: "T6" }, // Corrected T5 to object for consistency
+    T4: { 0: "T4", 1: "T4" }, T5: { 0: "T5", 1: "T5" }, T6: { 0: "T6", 1: "T6" },
     T7: { 0: "T7", 1: "T7" }, T8: { 0: "T8", 1: "T8" }, T9: { 0: "T9", 1: "T9" }
   };
 
-
   const acceptingStates = ["q42", "q43"];
 
-  const handleInputChange = (e) => {
-    setInput(e.target.value);
+  // Handle individual input changes
+  const handleInputChange = (e, index) => {
+    const newInputs = [...inputs];
+    newInputs[index] = e.target.value;
+    setInputs(newInputs);
+    // Clear message for this input when it changes
+    const newMessages = [...messages];
+    newMessages[index] = "";
+    setMessages(newMessages);
   };
 
-  const simulateDFA = async () => {
-    // Only simulate if in DFA view mode
+  const simulateDFA = async (inputString, inputIndex) => {
     if (viewMode !== 'dfa') return;
 
-    // Reset state to the simulation start (q1 based on your loop, though currentState starts at q0)
-    let state = "q1";
-    setCurrentState("q1"); // Update the displayed state immediately
+    setSimulationRunning(true); // Disable all buttons
 
-    if (!/^[01]*$/.test(input)) {
-      setMessage("invalid input: use only 0 and 1");
+    // Reset state to the simulation start (q1)
+    let state = "q1";
+    setCurrentState("q1");
+
+    if (!/^[01]*$/.test(inputString)) {
+      const newMessages = [...messages];
+      newMessages[inputIndex] = "invalid input: use only 0 and 1";
+      setMessages(newMessages);
+      setSimulationRunning(false); // Re-enable buttons
       return;
     }
-    setMessage(""); // Clear previous message
+    const newMessages = [...messages];
+    newMessages[inputIndex] = "";
+    setMessages(newMessages);
 
-    // Reset active transition and pulse at the start of simulation
     setActiveTransition(null);
     setPulseLoop(null);
 
-
-    for (let char of input) {
+    for (let char of inputString) {
       if (!transitions[state]) {
-        // Handle transition to undefined state if necessary, or break
         console.warn(`No transitions defined for state ${state}`);
-        state = "T"; // Assuming 'T' is a trap state or similar
+        state = "T";
         setCurrentState(state);
-        break; // Exit the loop if state is invalid
+        break;
       }
       let nextState = transitions[state][char];
 
       if (nextState === undefined) {
-        // Handle undefined transitions (e.g., move to a trap state 'T')
         console.warn(`No transition for state ${state} on input ${char}`);
-        nextState = "T"; // Assuming 'T' is a trap state or similar
+        nextState = "T";
       }
 
-      // Set the active transition for visualization
-      setActiveTransition({ from: state, to: nextState, label: char }); // Include label for potential visualization use
+      setActiveTransition({ from: state, to: nextState, label: char });
 
-      // Check for self-loop visualization logic
       if (state === nextState) {
-        // Trigger pulse animation for self-loop
-        setPulseLoop({ state, key: Date.now() }); // Use Date.now() to force re-render and re-trigger animation
-        await new Promise((resolve) => setTimeout(resolve, 750)); // Pause for visualization
-        setPulseLoop(null); // Stop pulse after timeout
+        setPulseLoop({ state, key: Date.now() });
+        await new Promise((resolve) => setTimeout(resolve, 750));
+        setPulseLoop(null);
       } else {
-        // Pause for visualization of transition
         await new Promise((resolve) => setTimeout(resolve, 750));
       }
 
-      state = nextState; // Move to the next state
-      setCurrentState(state); // Update the displayed state
+      state = nextState;
+      setCurrentState(state);
     }
 
-    // Simulation finished
-    setActiveTransition(null); // Clear active transition highlight
-    // Check final state acceptance after the loop
-    setMessage(acceptingStates.includes(state) ? "string: accepted" : "string: rejected");
+    setActiveTransition(null);
+    const resultMessage = acceptingStates.includes(state) ? "string: accepted" : "string: rejected";
+    const finalMessages = [...messages];
+    finalMessages[inputIndex] = resultMessage;
+    setMessages(finalMessages);
+
+    setSimulationRunning(false); // Re-enable buttons
   };
 
-  // --- Handlers for view switching ---
   const handleShowCFG = () => {
     setViewMode('cfg');
-    // Optional: Clear simulation state when switching views
-   setMessage(""); setCurrentState("q0"); setActiveTransition(null); setPulseLoop(null);
+    setMessages(["", "", "", "", ""]);
+    setCurrentState("q0");
+    setActiveTransition(null);
+    setPulseLoop(null);
+    setSimulationRunning(false); // Ensure buttons are enabled if switching away from DFA
   };
 
   const handleShowPDA = () => {
     setViewMode('pda');
-    // Optional: Clear simulation state when switching views
-   setMessage(""); setCurrentState("q0"); setActiveTransition(null); setPulseLoop(null);
+    setMessages(["", "", "", "", ""]);
+    setCurrentState("q0");
+    setActiveTransition(null);
+    setPulseLoop(null);
+    setSimulationRunning(false); // Ensure buttons are enabled if switching away from DFA
   };
 
   const handleBackToDFA = () => {
     setViewMode('dfa');
-    // Optional: Reset simulation state when going back to DFA
-   setMessage(""); setCurrentState("q0"); setActiveTransition(null); setPulseLoop(null);
+    setMessages(["", "", "", "", ""]);
+    setCurrentState("q0");
+    setActiveTransition(null);
+    setPulseLoop(null);
+    setSimulationRunning(false); // Ensure buttons are enabled when returning to DFA
   };
 
   const handleGoBackLanding = () => {
-    navigate('/'); // Navigate to the landing page route
+    navigate('/');
   };
 
-  // --- REGEX FOR CFG/PDA VALIDATION ---
-  // Ensure to escape special characters like '+' and '*' if they are meant to be literal characters,
-  // but in your case, they are regex operators. Parentheses also need to be escaped if literal.
-  // The provided regex is already a valid regex pattern for JavaScript.
   const complexRegex = /^(11|00)(11|00)*(1|0)(11|00|10|01)((101|111)|(00|11))(1*011*00)(0|1)*((11|00)|111|000)$/;
 
-  // --- Updated validation function for CFG/PDA inputs ---
-  const validateNonDFAInput = () => {
-    if (!input) {
-      setMessage("Please enter a string.");
+  const validateNonDFAInput = (inputString, inputIndex) => {
+    if (!inputString) {
+      const newMessages = [...messages];
+      newMessages[inputIndex] = "Please enter a string.";
+      setMessages(newMessages);
       return;
     }
 
-    // First, check if the input consists only of 0s and 1s
-    if (!/^[01]*$/.test(input)) {
-      setMessage("Invalid input format: use only 0 and 1.");
+    if (!/^[01]*$/.test(inputString)) {
+      const newMessages = [...messages];
+      newMessages[inputIndex] = "Invalid input format: use only 0 and 1.";
+      setMessages(newMessages);
       return;
     }
 
-    // Now, test the input against the complex regular expression
-    if (complexRegex.test(input)) {
-      setMessage("string: accepted!");
+    const newMessages = [...messages];
+    if (complexRegex.test(inputString)) {
+      newMessages[inputIndex] = "string: accepted!";
     } else {
-      setMessage("string: rejected.");
+      newMessages[inputIndex] = "string: rejected.";
     }
+    setMessages(newMessages);
   };
-  // --- End updated validation function ---
 
-  // --- Content for CFG and PDA ---
-  // Replace with your actual CFG rules
   const cfgContent = `
     S → ABCDEFHI
 
@@ -185,154 +194,153 @@ const DFA_Simulator = () => {
     X → 1X | Ω
 
     G = {(S,A,B,C,D,E,F,H,I,X),(a,b),
-   (S → ABCDEFHI,A → 11 | 00,B → 11B | 00B | Ω,C → 1 | 0,
+    (S → ABCDEFHI,A → 11 | 00,B → 11B | 00B | Ω,C → 1 | 0,
     D → 11 | 00 | 10 | 01,E → 101 | 111 | 00 | 11,F → X01X00,
     H → 0H | 1H | Ω,I → 11 | 00 | 111 | 000,X → 1X | Ω)}
-  `; // Example CFG - replace with your actual grammar rules
-
+  `;
 
   const pdaImagePath = pdaImage;
 
-  // --- End content ---
-
-
   return (
     <div className="container">
-      {/* Back button container for positioning */}
       <div className="back-button-container">
-          <button onClick={handleGoBackLanding} className="back-button">
-            ← Back
-          </button>
+        <button onClick={handleGoBackLanding} className="back-button">
+          ← Back
+        </button>
       </div>
-
 
       <h1>(11+00) (11+00)* (1+0) (11+00+10+01) ((101+111) + (00+11)) (1*011*00) (0+1)* ((11+00) + (111) + 000))</h1>
 
-      {/* Input and button group */}
-      <div className="input-button-group">
-        <input
-          type="text"
-          value={input}
-          onChange={handleInputChange}
-          placeholder="Type string here."
-          // Input is always enabled now as per the previous change
-        />
+      {/* Input and button group for DFA */}
+      {viewMode === 'dfa' && (
+        <>
+          {[0, 1, 2, 3, 4].map((index) => (
+            <div className="input-row" key={index}> {/* Changed to input-row */}
+              <div className="input-button-group"> {/* This group keeps input and button together */}
+                <input
+                  type="text"
+                  value={inputs[index]}
+                  onChange={(e) => handleInputChange(e, index)}
+                  placeholder={`Type string here for simulation ${index + 1}.`}
+                  disabled={simulationRunning}
+                />
+                <button
+                  onClick={() => simulateDFA(inputs[index], index)}
+                  className="button"
+                  disabled={simulationRunning}
+                >
+                  {simulationRunning ? 'Finish Ongoing Simulation' : 'Validate String'}
+                </button>
+              </div>
+              {/* Message displayed below the input and button */}
+              <p className={messages[index].includes("accepted") ? "accepted" : "rejected"}>{messages[index]}</p>
+            </div>
+          ))}
+          <div className="button-row">
+            <button
+              onClick={handleShowCFG}
+              className="button"
+              disabled={simulationRunning}
+            >
+              Show CFG
+            </button>
+            <button
+              onClick={handleShowPDA}
+              className="button"
+              disabled={simulationRunning}
+            >
+              Show PDA
+            </button>
+          </div>
+        </>
+      )}
 
-        {/* Instead of conditionally rendering the whole group, we'll hide/show individual buttons */}
-        <button
-          onClick={simulateDFA}
-          className="button"
-          style={{ display: viewMode === 'dfa' ? 'inline-block' : 'none' }}
-        >
-          validate string
-        </button>
-        <button
-          onClick={handleShowCFG}
-          className="button"
-          style={{ display: viewMode === 'dfa' ? 'inline-block' : 'none' }}
-        >
-          Show CFG
-        </button>
-        <button
-          onClick={handleShowPDA}
-          className="button"
-          style={{
-            display: viewMode === 'dfa' ? 'inline-block' : 'none',
-            borderTopRightRadius: '8px', // Apply specific rounding
-            borderBottomRightRadius: '8px' // Apply specific rounding
-          }}
-        >
-          Show PDA
-        </button>
-
-        {/* Buttons for CFG/PDA views */}
-        <button
-          onClick={validateNonDFAInput}
-          className="button"
-          style={{ display: viewMode !== 'dfa' ? 'inline-block' : 'none' }}
-        >
-          Validate Input
-        </button>
-        <button
-          onClick={handleBackToDFA}
-          className="button back-to-dfa-button"
-          style={{ display: viewMode !== 'dfa' ? 'inline-block' : 'none' }}
-        >
-          (back to DFA)
-        </button>
-      </div>
-
+      {/* Input and button group for CFG/PDA */}
+      {viewMode !== 'dfa' && (
+        <div className="input-row"> {/* Use input-row for consistent styling */}
+          <div className="input-button-group">
+            <input
+              type="text"
+              value={inputs[0]} // Use the first input for CFG/PDA validation
+              onChange={(e) => handleInputChange(e, 0)}
+              placeholder="Type string here."
+            />
+            <button
+              onClick={() => validateNonDFAInput(inputs[0], 0)}
+              className="button"
+            >
+              Validate Input
+            </button>
+          </div>
+          <p className={messages[0].includes("accepted") ? "accepted" : "rejected"}>{messages[0]}</p>
+          <button
+            onClick={handleBackToDFA}
+            className="button back-to-dfa-button"
+          >
+            (back to DFA)
+          </button>
+        </div>
+      )}
 
       {/* Message output for DFA and CFG/PDA */}
-      <p>state.current = {currentState}</p>
-      <p className={message.includes("accepted") || message.includes("matches") ? "accepted" : "rejected"}>{message}</p>
+      {viewMode === 'dfa' && <p>state.current = {currentState}</p>}
 
       {/* --- Conditional Rendering of Content --- */}
-      <div className="visualization-area"> {/* Container for the dynamic content */}
+      <div className="visualization-area">
         {viewMode === 'dfa' && (
-           <DFAVisualization
+          <DFAVisualization
             currentState={currentState}
             activeTransition={activeTransition}
             acceptingStates={acceptingStates}
             pulseLoop={pulseLoop}
-            // Pass other necessary props to DFAVisualization
           />
         )}
 
         {viewMode === 'cfg' && (
           <div className="cfg-content">
             <h2>Context-Free Grammar (CFG):</h2>
-            <pre>{cfgContent}</pre> {/* Use pre for formatting */}
+            <pre>{cfgContent}</pre>
           </div>
         )}
 
         {viewMode === 'pda' && (
           <div className="pda-content">
-              <h2>Pushdown Automaton (PDA):</h2>
-            {/* Ensure the image path is correct and the image file exists */}
-            <img src={pdaImagePath} alt="Pushdown Automaton Visualization" className="pda-image"/>
+            <h2>Pushdown Automaton (PDA):</h2>
+            <img src={pdaImagePath} alt="Pushdown Automaton Visualization" className="pda-image" />
           </div>
         )}
       </div>
-      {/* --- End Conditional Rendering --- */}
-
-
     </div>
   );
 };
 
-// Keep your DFAVisualization component definition below this one
-// or ensure it's imported if it's in a separate file.
 const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pulseLoop }) => {
-  // ... (keep your existing DFAVisualization code, including states, lines, loopLabels, renderLoop) ...
   const states = {
-    // ... (keep your existing states object) ...
     q1: { x: 75, y: 700 }, q18: { x: 250, y: 450 }, q37: { x: 250, y: 1000 },
-    q45: { x: 300, y: 700}, q46: { x: 525, y: 575}, q47: { x: 525, y: 825},
-    q48: { x: 725, y: 1000}, q51: { x: 835, y: 1120}, q55: { x: 775, y: 750},
-    q3: { x: 1075, y: 1625}, q12: { x: 1075, y: 2225}, q11: { x: 1075, y: 1225},
-    q56: { x: 805, y: 1625}, q4: { x: 505, y: 1700}, q5: { x: 595, y: 1950},
-    q13: { x: 1255, y: 1950}, q21: { x: 1255, y: 1800}, q28: { x: 1455, y: 1800},
-    q36: { x: 1655, y: 1700}, q44: { x: 1655, y: 1460}, q29: { x: 3055, y: 1460},
-    q38: { x: 3355, y: 1460}, q42: { x: 3755, y: 1460}, q43: { x: 3655, y: 1660},
-    q39: { x: 3555, y: 1260}, q24: { x: 1905, y: 1700}, q32: { x: 2255, y: 1565},
-    q35: { x: 1655, y: 1900}, q50: { x: 725, y: 1275}, q9: { x: 725, y: 1435},
-    q53: { x: 465, y: 1325}, q59: { x: 485, y: 1125}, q8: { x: 465, y: 925},
-    q15: { x: 2315, y: 925}, q22: { x: 2315, y: 275}, q23: { x: 2515, y: 1125},
-    q31: { x: 2715, y: 1125}, q41: { x: 2515, y: 925}, q40: { x: 2515, y: 1375},
-    q20: { x: 2150, y: 2025}, q27: { x: 2900, y: 1655}, q34: { x: 2900, y: 55},
-    q26: { x: 2150, y: 700}, T3: { x: 2150, y: 500}, q30: { x: 2315, y: 1225},
-    q54: { x: 1225, y: 1475}, q2: { x: 1425, y: 1625}, q49: { x: 725, y: 425},
-    q52: { x: 925, y: 425}, q57: { x: 1050, y: 325}, q58: { x: 1050, y: 525},
-    q7: { x: 1050, y: 775}, T1: { x: 900, y: 675}, T4: { x: 175, y: 700},
-    T5: { x: 1050, y: 155}, q16: { x: 1375, y: 305}, q6: { x: 1550, y: 700},
-    q14: { x: 1750, y: 700}, T9: { x: 1750, y: 500}, q19: { x: 1950, y: 700},
-    q10: { x: 1225, y: 1275}, q17: { x: 1625, y: 1235}, q25: { x: 1825, y: 1050},
-    q33: { x: 2025, y: 1050}, T8: { x: 1465, y: 1135},
+    q45: { x: 300, y: 700 }, q46: { x: 525, y: 575 }, q47: { x: 525, y: 825 },
+    q48: { x: 725, y: 1000 }, q51: { x: 835, y: 1120 }, q55: { x: 775, y: 750 },
+    q3: { x: 1075, y: 1625 }, q12: { x: 1075, y: 2225 }, q11: { x: 1075, y: 1225 },
+    q56: { x: 805, y: 1625 }, q4: { x: 505, y: 1700 }, q5: { x: 595, y: 1950 },
+    q13: { x: 1255, y: 1950 }, q21: { x: 1255, y: 1800 }, q28: { x: 1455, y: 1800 },
+    q36: { x: 1655, y: 1700 }, q44: { x: 1655, y: 1460 }, q29: { x: 3055, y: 1460 },
+    q38: { x: 3355, y: 1460 }, q42: { x: 3755, y: 1460 }, q43: { x: 3655, y: 1660 },
+    q39: { x: 3555, y: 1260 }, q24: { x: 1905, y: 1700 }, q32: { x: 2255, y: 1565 },
+    q35: { x: 1655, y: 1900 }, q50: { x: 725, y: 1275 }, q9: { x: 725, y: 1435 },
+    q53: { x: 465, y: 1325 }, q59: { x: 485, y: 1125 }, q8: { x: 465, y: 925 },
+    q15: { x: 2315, y: 925 }, q22: { x: 2315, y: 275 }, q23: { x: 2515, y: 1125 },
+    q31: { x: 2715, y: 1125 }, q41: { x: 2515, y: 925 }, q40: { x: 2515, y: 1375 },
+    q20: { x: 2150, y: 2025 }, q27: { x: 2900, y: 1655 }, q34: { x: 2900, y: 55 },
+    q26: { x: 2150, y: 700 }, T3: { x: 2150, y: 500 }, q30: { x: 2315, y: 1225 },
+    q54: { x: 1225, y: 1475 }, q2: { x: 1425, y: 1625 }, q49: { x: 725, y: 425 },
+    q52: { x: 925, y: 425 }, q57: { x: 1050, y: 325 }, q58: { x: 1050, y: 525 },
+    q7: { x: 1050, y: 775 }, T1: { x: 900, y: 675 }, T4: { x: 175, y: 700 },
+    T5: { x: 1050, y: 155 }, q16: { x: 1375, y: 305 }, q6: { x: 1550, y: 700 },
+    q14: { x: 1750, y: 700 }, T9: { x: 1750, y: 500 }, q19: { x: 1950, y: 700 },
+    q10: { x: 1225, y: 1275 }, q17: { x: 1625, y: 1235 }, q25: { x: 1825, y: 1050 },
+    q33: { x: 2025, y: 1050 }, T8: { x: 1465, y: 1135 },
   };
 
-    const lines = [
-    // ... (keep your existing lines array) ...
+  const lines = [
     { from: "q1", to: "q18", label: "0" }, { from: "q1", to: "q37", label: "1" },
     { from: "q18", to: "q45", label: "0" }, { from: "q18", to: "T4", label: "1" },
     { from: "q37", to: "q45", label: "1" }, { from: "q37", to: "T4", label: "0" },
@@ -388,14 +396,12 @@ const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pul
     { from: "q38", to: "q42", label: "0" }, { from: "q42", to: "q39", label: "1" },
     { from: "q38", to: "q39", label: "1" }, { from: "q39", to: "q38", label: "0" },
     { from: "q29", to: "q39", label: "0" }, { from: "q39", to: "q43", label: "1" },
-    { from: "q43", to: "q38", label: "0" },{ from: "q29", to: "q38", label: "0" }
-    ];
-    const loopLabels = {
-    // ... (keep your existing loopLabels object) ...
+    { from: "q43", to: "q38", label: "0" }, { from: "q29", to: "q38", label: "0" }
+  ];
+  const loopLabels = {
     T4: "0/1", T8: "0/1", T5: "0/1", T1: "0/1", T9: "0/1", T3: "0/1",
     q6: "1", q25: "1", q19: "1", q42: "0", q43: "1"
-    };
-
+  };
 
   const renderLoop = (stateName) => {
     const { x, y } = states[stateName];
@@ -427,8 +433,8 @@ const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pul
   };
 
   return (
-    <svg width="5000" height="5000" className="dfa"> {/* Keep your SVG container */}
-      <defs> {/* Keep your arrowhead marker */}
+    <svg width="5000" height="5000" className="dfa">
+      <defs>
         <marker
           id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5"
           markerWidth="6" markerHeight="6" orient="auto-start-reverse"
@@ -437,18 +443,16 @@ const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pul
         </marker>
       </defs>
 
-      {/* Offset line function - keep */}
-      {/* Keep mapping over lines */}
       {lines.map((line, index) => {
         const from = states[line.from];
         const to = states[line.to];
-        const offset = 37; // Radius of the state circle
+        const offset = 37;
 
         function offsetLine(from, to, offset) {
           const dx = to.x - from.x;
           const dy = to.y - from.y;
           const length = Math.sqrt(dx * dx + dy * dy);
-          if (length === 0) return from; // Prevent division by zero
+          if (length === 0) return from;
           const ratio = (length - offset) / length;
           return {
             x: from.x + dx * ratio,
@@ -466,12 +470,11 @@ const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pul
           activeTransition?.from === line.from &&
           activeTransition?.to === line.to;
 
-        // Calculate perpendicular offset for label position
         const dx = adjustedTo.x - from.x;
         const dy = adjustedTo.y - from.y;
         const len = Math.sqrt(dx * dx + dy * dy);
-        const normX = len === 0 ? 0 : -dy / len; // Handle len=0
-        const normY = len === 0 ? 0 : dx / len; // Handle len=0
+        const normX = len === 0 ? 0 : -dy / len;
+        const normY = len === 0 ? 0 : dx / len;
 
         const labelOffset = 20;
 
@@ -480,18 +483,14 @@ const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pul
           y: mid.y + normY * labelOffset,
         };
 
-        const pointerOffset = 10; // Distance to stop before the label
-
-        // Direction vector from mid to labelPos
+        const pointerOffset = 10;
         const pointerDx = labelPos.x - mid.x;
         const pointerDy = labelPos.y - mid.y;
         const pointerLength = Math.sqrt(pointerDx * pointerDx + pointerDy * pointerDy);
-          // Adjust connector end if length is 0 to avoid NaN
         const connectorEnd = pointerLength === 0 ? mid : {
           x: mid.x + pointerDx * (pointerLength - pointerOffset) / pointerLength,
           y: mid.y + pointerDy * (pointerLength - pointerOffset) / pointerLength,
         };
-
 
         return (
           <React.Fragment key={index}>
@@ -500,16 +499,12 @@ const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pul
               stroke="white" strokeWidth="2" markerEnd="url(#arrowhead)"
               className={`dfa-line ${isActive ? "active" : ""}`}
             />
-            {/* Connector line from label to main line */}
-            {/* Only render if len is not 0, as labelPos calculation might be off */}
-              {len !== 0 && (
+            {len !== 0 && (
               <line
                 x1={mid.x} y1={mid.y} x2={connectorEnd.x} y2={connectorEnd.y}
                 stroke="#5dd39e" strokeWidth="3" strokeDasharray="3,2"
               />
             )}
-
-
             <text
               x={labelPos.x} y={labelPos.y} fontSize="14" textAnchor="middle"
               className={`dfa-label ${isActive ? "active" : ""}`}
@@ -520,10 +515,8 @@ const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pul
         );
       })}
 
-      {/* Render loop transitions */}
-        {Object.keys(loopLabels).map((state) => renderLoop(state))} {/* Iterate based on loopLabels keys */}
+      {Object.keys(loopLabels).map((state) => renderLoop(state))}
 
-      {/* States */}
       {Object.entries(states).map(([state, { x, y }]) => (
         <circle
           key={state} cx={x} cy={y} r={37}
@@ -533,11 +526,10 @@ const DFAVisualization = ({ currentState, activeTransition, acceptingStates, pul
         />
       ))}
 
-      {/* State Labels */}
       {Object.entries(states).map(([state, { x, y }]) => (
         <text
-          key={`${state}-label`} // Unique key
-          x={x - 11} y={y + 7} // Adjust positioning as needed
+          key={`${state}-label`}
+          x={x - 11} y={y + 7}
           className={`circle-labels ${
             acceptingStates.includes(state) ? "accepting-label" : ""
           }`}
