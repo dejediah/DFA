@@ -173,30 +173,30 @@ const DFA_Simulator = () => {
   };
 
   const cfgContent = `
-    S → ABCDEFHI
+  S → ABCDEFHI
 
-    A → 11 | 00
+  A → 11 | 00
 
-    B → 11B | 00B | Ω
+  B → 11B | 00B | Ω
 
-    C → 1 | 0
+  C → 1 | 0
 
-    D → 11 | 00 | 10 | 01
+  D → 11 | 00 | 10 | 01
 
-    E → 101 | 111 | 00 | 11
+  E → 101 | 111 | 00 | 11
 
-    F → X01X00
+  F → X01X00
 
-    H → 0H | 1H | Ω
+  H → 0H | 1H | Ω
 
-    I → 11 | 00 | 111 | 000
+  I → 11 | 00 | 111 | 000
 
-    X → 1X | Ω
+  X → 1X | Ω
 
-    G = {(S,A,B,C,D,E,F,H,I,X),(a,b),
-    (S → ABCDEFHI,A → 11 | 00,B → 11B | 00B | Ω,C → 1 | 0,
-    D → 11 | 00 | 10 | 01,E → 101 | 111 | 00 | 11,F → X01X00,
-    H → 0H | 1H | Ω,I → 11 | 00 | 111 | 000,X → 1X | Ω)}
+  G = {(S,A, B, C, D, E,F, H, I,X), (0, 1), (S → ABCDEFHI,A → 11 | 00, B
+  → 11B | 00B | Ω,C → 1 | 0, D → 11 | 00 | 10 | 01,E
+  → 101 | 111 | 00 | 11,F → X01X00, H → 0H | 1H | Ω, I
+  → 11 | 00 | 111 | 000,X → 1X | Ω)}
   `;
 
   const pdaImagePath = pdaImage;

@@ -174,31 +174,31 @@ const DFA2_Simulator = () => {
 
   // --- Content for CFG and PDA Views ---
   const cfgContent = `
-    S → ABCDEF
+  S → ABCDEF
 
-    A → aa | ab | ba | bb
+  A → aa | ab | ba | bb
 
-    B → aB | bB | Ω
+  B → aB | bB | Ω
 
-    C → aX | bX | Ω
+  C → aW | bX | Ω
 
-    D → Y | Z | aa | bb
+  D → Y | Z | aa | bb
 
-    E → aa | bb
+  E → aa | bb
 
-    F → aF | bF | Ω
+  F → aF | bF | Ω
 
-    X → a | b | Ω
+  W → aW | Ω
 
-    Y → baY | Ω
+  X → bX | Ω
 
-    Z → abZ | Ω
+  Y → baY | Ω
+  
+  Z → abZ | Ω
 
-    G = {(S,A,B,C,D,E,F,X,Y,Z),(a,b),
-    (S → ABCDEF,A → aa | ab | ba | bb,B → aB | bB | Ω,C → aX |
-    bX | Ω,
-    D → Y | Z | aa | bb,E → aa | bb,F → aF | bF | Ω,X → a | b |
-    Ω, Y → baY | Ω,Z → abZ | Ω)}
+  G = {(S,A, B, C, D, E,F, W,X, Y, Z), (a, b), (S → ABCDEF,A → aa | ab | ba | bb, B
+  → aB | bB | Ω, C → aW | bX | Ω, D → Y | Z | aa | bb,E → aa | bb, F
+  → aF | bF | Ω, W → aW | Ω,X → bX | Ω, Y → baY | Ω, Z → abZ | Ω)}
   `;
 
   const pdaImagePath = pdaImage;
